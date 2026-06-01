@@ -1,26 +1,22 @@
+```python
 from django.shortcuts import render, redirect
-
 from django.contrib.auth.models import User
-
 from django.contrib.auth import login, logout
-
 from django.contrib.auth.decorators import login_required
-
 from django.contrib import messages
-
-from django.core.mail import send_mail
-
 from django.utils import timezone
-
 from datetime import timedelta
-
 from .models import Song, Playlist, EmailOTP
-
 import random
+import resend
+import os
+
+
+# RESEND API KEY
+resend.api_key = os.getenv("RESEND_API_KEY")
 
 
 # HOME
-
 @login_required(login_url='/send-email-otp/')
 def home(request, playlist_id=None):
 
@@ -53,7 +49,6 @@ def home(request, playlist_id=None):
 
 
 # SEND EMAIL OTP
-
 def send_email_otp(request):
 
     if request.method == "POST":
@@ -62,40 +57,39 @@ def send_email_otp(request):
 
         email = request.POST.get("email")
 
-        #DELETE OLD OTP
-
+        # DELETE OLD OTP
         EmailOTP.objects.filter(
-
             email=email
-
         ).delete()
 
-        #NEW OTP
-
+        # NEW OTP
         otp = str(random.randint(100000, 999999))
 
         # SAVE OTP
-
         EmailOTP.objects.create(
-
             email=email,
             otp=otp
         )
 
-        # SEND EMAIL
+        # SEND EMAIL USING RESEND
+        resend.Emails.send({
 
-        send_mail(
+            "from": "onboarding@resend.dev",
 
-            'Your Login OTP',
+            "to": email,
 
-            f'Your OTP is {otp}',
+            "subject": "Your Login OTP",
 
-            'prathapsept1212@gmail.com',
+            "html": f"""
 
-            [email],
+            <h2>Musify Login OTP</h2>
 
-            fail_silently=False,
-        )
+            <h1>{otp}</h1>
+
+            <p>Your OTP is valid for 1 minute.</p>
+
+            """
+        })
 
         return render(request, 'verify_email_otp.html', {
 
@@ -108,7 +102,6 @@ def send_email_otp(request):
 
 
 # VERIFY EMAIL OTP
-
 def verify_email_otp(request):
 
     if request.method == "POST":
@@ -129,18 +122,15 @@ def verify_email_otp(request):
         if check:
 
             # OTP EXPIRY TIME
-
             expiry_time = (
                 check.created_at
                 + timedelta(minutes=1)
             )
 
             # CHECK EXPIRY
-
             if timezone.now() > expiry_time:
 
                 messages.error(
-
                     request,
                     "OTP Expired"
                 )
@@ -150,7 +140,6 @@ def verify_email_otp(request):
                 )
 
             # CREATE USER
-
             user, created = User.objects.get_or_create(
 
                 username=email,
@@ -168,7 +157,6 @@ def verify_email_otp(request):
             user.save()
 
             # LOGIN
-
             login(request, user)
 
             return redirect('/')
@@ -176,7 +164,6 @@ def verify_email_otp(request):
         else:
 
             messages.error(
-
                 request,
                 "Wrong OTP"
             )
@@ -185,9 +172,9 @@ def verify_email_otp(request):
 
 
 # LOGOUT
-
 def logout_user(request):
 
     logout(request)
 
     return redirect('/send-email-otp/')
+
