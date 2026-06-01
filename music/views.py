@@ -1,4 +1,3 @@
-
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout
@@ -7,6 +6,7 @@ from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
 from .models import Song, Playlist, EmailOTP
+
 import random
 import resend
 import os
@@ -74,19 +74,23 @@ def send_email_otp(request):
         # SEND EMAIL USING RESEND
         resend.Emails.send({
 
-            "from": "onboarding@resend.dev",
+            "from": "otp@musifyxyz.site",
 
-            "to": email,
+            "to": [email],
 
-            "subject": "Your Login OTP",
+            "subject": "Your Musify OTP",
 
             "html": f"""
 
-            <h2>Musify Login OTP</h2>
+            <div style="font-family: Arial; padding:20px;">
 
-            <h1>{otp}</h1>
+                <h2>Musify Login OTP</h2>
 
-            <p>Your OTP is valid for 1 minute.</p>
+                <h1 style="color:#6c63ff;">{otp}</h1>
+
+                <p>Your OTP is valid for 1 minute.</p>
+
+            </div>
 
             """
         })
@@ -177,4 +181,3 @@ def logout_user(request):
     logout(request)
 
     return redirect('/send-email-otp/')
-
