@@ -42,6 +42,8 @@ MIDDLEWARE = [
 
     'django.middleware.security.SecurityMiddleware',
 
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
 
     'django.middleware.common.CommonMiddleware',
@@ -130,6 +132,14 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATICFILES_DIRS = [
+
+    BASE_DIR / "music/static",
+
+]
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 
 # MEDIA FILES
 
@@ -167,8 +177,3 @@ DEFAULT_FROM_EMAIL = 'prathapsept1212@gmail.com'
 # DEFAULT PRIMARY KEY
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-STATICFILES_DIRS = [
-
-    BASE_DIR / "music/static",
-]
