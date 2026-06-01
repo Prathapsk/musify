@@ -16,7 +16,7 @@ SECRET_KEY = 'django-insecure-1c7y*z2jp!xbnig@nxd7md)3xnji5rz(27ot1i_($p5@69cg8q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['musify-omna.onrender.com', '127.0.0.1']
 
 
 # Application definition
