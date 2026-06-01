@@ -1,0 +1,100 @@
+{% extends "admin/change_form.html" %}
+
+{% load static %}
+
+{% block extrahead %}
+
+{{ block.super }}
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const rightBox = document.getElementById("id_songs_to");
+
+    if (!rightBox) {
+        console.log("Right box not found");
+        return;
+    }
+
+    const deleteBtn = document.createElement("button");
+
+    deleteBtn.innerHTML = "Delete Selected Songs";
+
+    deleteBtn.type = "button";
+
+    deleteBtn.style.marginTop = "10px";
+    deleteBtn.style.background = "red";
+    deleteBtn.style.color = "white";
+    deleteBtn.style.border = "none";
+    deleteBtn.style.padding = "10px";
+    deleteBtn.style.cursor = "pointer";
+    deleteBtn.style.width = "100%";
+
+    rightBox.parentNode.appendChild(deleteBtn);
+
+    deleteBtn.addEventListener("click", function () {
+
+        const selectedSongs = [];
+
+        Array.from(rightBox.selectedOptions).forEach(function(option){
+
+            selectedSongs.push(option.value);
+
+        });
+
+        if(selectedSongs.length === 0){
+
+            alert("Select songs first");
+
+            return;
+        }
+
+        fetch(
+            window.location.pathname + "delete-selected-songs/",
+            {
+
+                method: "POST",
+
+                headers: {
+
+                    "Content-Type": "application/json",
+
+                    "X-CSRFToken":
+                    document.querySelector(
+                        "[name=csrfmiddlewaretoken]"
+                    ).value
+
+                },
+
+                body: JSON.stringify({
+                    songs: selectedSongs
+                })
+
+            }
+
+        )
+        .then(response => response.json())
+        .then(data => {
+
+            console.log(data);
+
+            if(data.status === "success"){
+
+                location.reload();
+
+            }else{
+
+                alert("Delete failed");
+
+            }
+
+        });
+
+    });
+
+});
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Musify</title>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      rel="stylesheet">
+
+{% load static %}
+
+<link rel="stylesheet"
+      href="{% static 'style.css' %}">
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<div class="navbar">
+
+    <div class="mobile-nav">
+
+        <button id="menu-btn">
+
+            <i class="fa-solid fa-bars"></i>
+
+        </button>
+
+        <div class="logo">
+            Musify
+        </div>
+
+    </div>
+
+    <div class="nav-right">
+
+        <span class="username">
+            Welcome, {{ user.first_name }}
+        </span>
+
+        <a href="/logout/" class="btn">
+            Logout
+        </a>
+
+    </div>
+
+</div>
+
+<!-- CONTAINER -->
+
+<div class="container">
+
+    <!-- SIDEBAR -->
+
+    <div class="sidebar">
+
+        <ul class="menu">
+
+            <li>
+
+                <a href="/">
+
+                    <i class="fa-solid fa-house"></i>
+
+                    Home
+
+                </a>
+
+            </li>
+
+            <h3 style="margin-top:30px;">
+                Your Playlists
+            </h3>
+
+            {% for playlist in playlists %}
+
+            <li>
+
+                <a href="/playlist/{{ playlist.id }}/">
+
+                    <i class="fa-solid fa-music"></i>
+
+                    {{ playlist.name }}
+
+                </a>
+
+            </li>
+
+            {% endfor %}
+
+        </ul>
+
+    </div>
+
+    <!-- MAIN -->
+
+    <div class="main">
+
+        <!-- SEARCH -->
+
+        <div class="topbar">
+
+            <input type="text"
+                   id="search"
+                   placeholder="What do you want to play?">
+
+        </div>
+
+        <!-- CATEGORIES -->
+
+        <div class="categories">
+
+            <button>All</button>
+
+            <button>Music</button>
+
+            <button>Tamil</button>
+
+            <button>Trending</button>
+
+        </div>
+
+        <!-- RECENTLY PLAYED -->
+
+        <h2 class="recent-title">
+            Recently Played
+        </h2>
+
+        <div class="recently-played"
+             id="recently-played">
+
+        </div>
+
+        <!-- PLAYLIST TITLE -->
+
+        <h1>{{ playlist_name }}</h1>
+
+        <!-- SONGS -->
+
+        <div class="songs">
+
+            {% for song in songs %}
+
+            <div class="card"
+                 data-title="{{ song.title }}"
+                 data-artist="{{ song.artist }}">
+
+                <img class="cover"
+                     src="{{ song.cover_image.url }}">
+
+                <div class="card-content">
+
+                    <div class="title">
+                        {{ song.title }}
+                    </div>
+
+                    <div class="artist">
+                        {{ song.artist }}
+                    </div>
+
+                    <!-- LYRICS -->
+
+                    <button class="lyrics-btn"
+
+                    data-lyrics="
+                    ♪ Lyrics for {{ song.title }}
+                    coming soon...
+                    ">
+
+                    Lyrics
+
+                    </button>
+
+                    <!-- LIKE -->
+
+                    <div class="like-btn">
+
+                        <i class="fa-regular fa-heart"></i>
+
+                    </div>
+
+                    <!-- PLAY -->
+
+                    <div class="play-btn"
+
+                         data-audio="{{ song.audio_file.url }}"
+
+                         data-title="{{ song.title }}"
+
+                         data-artist="{{ song.artist }}"
+
+                         data-cover="{{ song.cover_image.url }}">
+
+                        <button class="floating-play">
+
+                            <i class="fa-solid fa-play"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- PLAYER -->
+
+<div class="bottom-player">
+
+    <div class="player-content">
+
+        <div class="song-info">
+
+            <img id="player-cover" src="">
+
+            <div>
+
+                <h3 id="player-title">
+                    No Song Playing
+                </h3>
+
+                <p id="player-artist">
+                    Select a song
+                </p>
+
+                <!-- EQUALIZER -->
+
+                <div class="equalizer">
+
+                    <span></span>
+
+                    <span></span>
+
+                    <span></span>
+
+                    <span></span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="controls">
+
+            <div class="player-buttons">
+
+                <button id="prev">
+                    <i class="fa-solid fa-backward"></i>
+                </button>
+
+                <button id="playpause">
+                    <i class="fa-solid fa-play"></i>
+                </button>
+
+                <button id="next">
+                    <i class="fa-solid fa-forward"></i>
+                </button>
+
+            </div>
+
+            <audio id="main-player"></audio>
+
+            <input type="range"
+                   id="progress"
+                   value="0">
+
+            <!-- TIME -->
+
+            <div class="time-box">
+
+                <span id="current-time">
+
+                    0:00
+
+                </span>
+
+                <span id="duration">
+
+                    0:00
+
+                </span>
+
+            </div>
+
+            <!-- VOLUME -->
+
+            <div class="volume-box">
+
+                <i class="fa-solid fa-volume-high"></i>
+
+                <input type="range"
+                       id="volume"
+                       min="0"
+                       max="1"
+                       step="0.1"
+                       value="1">
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- LYRICS POPUP -->
+
+<div class="lyrics-popup"
+     id="lyrics-popup">
+
+    <div class="lyrics-box">
+
+        <span id="close-lyrics">
+
+            ✖
+
+        </span>
+
+        <h2>
+
+            Song Lyrics
+
+        </h2>
+
+        <div id="lyrics-content">
+
+            ♪ Lyrics will appear here...
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const playButtons =
+document.querySelectorAll('.play-btn')
+
+const player =
+document.getElementById('main-player')
+
+const playerTitle =
+document.getElementById('player-title')
+
+const playerArtist =
+document.getElementById('player-artist')
+
+const playerCover =
+document.getElementById('player-cover')
+
+const equalizerBars =
+document.querySelectorAll('.equalizer span')
+
+let currentIndex = 0
+
+function playSong(index){
+
+    document.querySelectorAll('.card')
+    .forEach(card => {
+
+        card.style.border =
+        '2px solid transparent'
+    })
+
+    document.querySelectorAll('.card')[index]
+    .style.border =
+    '2px solid #1db954'
+
+    const button = playButtons[index]
+
+    const audio = button.dataset.audio
+
+    const title = button.dataset.title
+
+    const artist = button.dataset.artist
+
+    const cover = button.dataset.cover
+
+    player.src = audio
+
+    player.play()
+
+    /* EQUALIZER */
+
+    equalizerBars.forEach(bar => {
+
+        bar.style.animationPlayState =
+        'running'
+    })
+
+    playPauseBtn.innerHTML =
+    '<i class="fa-solid fa-pause"></i>'
+
+    playerTitle.innerText = title
+
+    playerArtist.innerText = artist
+
+    playerCover.src = cover
+
+    /* RECENTLY PLAYED */
+
+    const recent =
+    document.getElementById('recently-played')
+
+    recent.innerHTML =
+    `
+    <div class="recent-card">
+
+        <img src="${cover}">
+
+        <h3>${title}</h3>
+
+        <p>${artist}</p>
+
+    </div>
+    `
+    + recent.innerHTML
+
+    currentIndex = index
+}
+
+playButtons.forEach((button, index) => {
+
+    button.addEventListener('click', () => {
+
+        playSong(index)
+
+    })
+
+})
+
+player.addEventListener('ended', () => {
+
+    currentIndex++
+
+    if(currentIndex >= playButtons.length){
+
+        currentIndex = 0
+    }
+
+    playSong(currentIndex)
+
+})
+
+const playPauseBtn =
+document.getElementById('playpause')
+
+const nextBtn =
+document.getElementById('next')
+
+const prevBtn =
+document.getElementById('prev')
+
+const progress =
+document.getElementById('progress')
+
+const currentTimeEl =
+document.getElementById('current-time')
+
+const durationEl =
+document.getElementById('duration')
+
+/* PLAY / PAUSE */
+
+playPauseBtn.addEventListener('click', () => {
+
+    if(player.paused){
+
+        player.play()
+
+        equalizerBars.forEach(bar => {
+
+            bar.style.animationPlayState =
+            'running'
+        })
+
+        playPauseBtn.innerHTML =
+        '<i class="fa-solid fa-pause"></i>'
+
+    }else{
+
+        player.pause()
+
+        equalizerBars.forEach(bar => {
+
+            bar.style.animationPlayState =
+            'paused'
+        })
+
+        playPauseBtn.innerHTML =
+        '<i class="fa-solid fa-play"></i>'
+    }
+
+})
+
+/* NEXT */
+
+nextBtn.addEventListener('click', () => {
+
+    currentIndex++
+
+    if(currentIndex >= playButtons.length){
+
+        currentIndex = 0
+    }
+
+    playSong(currentIndex)
+
+})
+
+/* PREVIOUS */
+
+prevBtn.addEventListener('click', () => {
+
+    currentIndex--
+
+    if(currentIndex < 0){
+
+        currentIndex =
+        playButtons.length - 1
+    }
+
+    playSong(currentIndex)
+
+})
+
+/* PROGRESS */
+
+player.addEventListener('timeupdate', () => {
+
+    progress.max = player.duration
+
+    progress.value = player.currentTime
+
+    let currentMinutes =
+    Math.floor(player.currentTime / 60)
+
+    let currentSeconds =
+    Math.floor(player.currentTime % 60)
+
+    if(currentSeconds < 10){
+
+        currentSeconds =
+        '0' + currentSeconds
+    }
+
+    currentTimeEl.innerText =
+    `${currentMinutes}:${currentSeconds}`
+
+    let durationMinutes =
+    Math.floor(player.duration / 60)
+
+    let durationSeconds =
+    Math.floor(player.duration % 60)
+
+    if(durationSeconds < 10){
+
+        durationSeconds =
+        '0' + durationSeconds
+    }
+
+    if(durationSeconds){
+
+        durationEl.innerText =
+        `${durationMinutes}:${durationSeconds}`
+    }
+
+})
+
+progress.addEventListener('input', () => {
+
+    player.currentTime = progress.value
+})
+
+/* SEARCH */
+
+const search =
+document.getElementById('search')
+
+search.addEventListener('keyup', () => {
+
+    const value =
+    search.value.toLowerCase()
+
+    const cards =
+    document.querySelectorAll('.card')
+
+    cards.forEach(card => {
+
+        const title =
+        card.dataset.title.toLowerCase()
+
+        const artist =
+        card.dataset.artist.toLowerCase()
+
+        if(
+            title.includes(value)
+            ||
+            artist.includes(value)
+        ){
+
+            card.style.display = 'block'
+
+        }else{
+
+            card.style.display = 'none'
+        }
+
+    })
+
+})
+
+/* VOLUME */
+
+const volume =
+document.getElementById('volume')
+
+volume.addEventListener('input', () => {
+
+    player.volume = volume.value
+})
+
+/* LIKE */
+
+const likeButtons =
+document.querySelectorAll('.like-btn')
+
+likeButtons.forEach(button => {
+
+    button.addEventListener('click', () => {
+
+        const icon =
+        button.querySelector('i')
+
+        icon.classList.toggle(
+            'fa-solid'
+        )
+
+        icon.classList.toggle(
+            'fa-regular'
+        )
+
+        button.classList.toggle(
+            'liked'
+        )
+
+    })
+
+})
+
+/* MOBILE MENU */
+
+const menuBtn =
+document.getElementById('menu-btn')
+
+const sidebar =
+document.querySelector('.sidebar')
+
+menuBtn.addEventListener('click', () => {
+
+    sidebar.classList.toggle('active')
+})
+
+/* LYRICS */
+
+const lyricsButtons =
+document.querySelectorAll('.lyrics-btn')
+
+const lyricsPopup =
+document.getElementById('lyrics-popup')
+
+const lyricsContent =
+document.getElementById('lyrics-content')
+
+const closeLyrics =
+document.getElementById('close-lyrics')
+
+lyricsButtons.forEach(button => {
+
+    button.addEventListener('click', () => {
+
+        lyricsPopup.style.display =
+        'flex'
+
+        lyricsContent.innerText =
+        button.dataset.lyrics
+    })
+
+})
+
+closeLyrics.addEventListener('click', () => {
+
+    lyricsPopup.style.display =
+    'none'
+})
+
+</script>
+
+</body>
+
+</html>
